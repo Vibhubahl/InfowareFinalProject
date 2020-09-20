@@ -10,6 +10,7 @@ app.set('view engine' , 'ejs');
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static('public'));
 
+var isLoggedIn = false;
 var email = "";
 var Name= "";
 var UserName= "";
@@ -32,6 +33,10 @@ app.get("/register", function(req,res)
 
 app.post("/register", async function(req,res)
 {
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     const name=req.body.name
     const Uname=req.body.Uname
     email=req.body.email
@@ -49,6 +54,7 @@ app.post("/register", async function(req,res)
     {
         if(response.data=="Added")
         {
+            isLoggedIn=true;
             res.redirect("/profile");
         }
         else if(response.data=="Registered")
@@ -66,6 +72,10 @@ app.post("/register", async function(req,res)
 
 app.post("/login" , async function(req,res)
 {
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     email = req.body.email;
     const pass =  md5(req.body.pwd);
     var status = await axios.post("http://localhost:4000/login", null,
@@ -79,6 +89,7 @@ app.post("/login" , async function(req,res)
     {
         if(response.data=="auth")
         {
+            isLoggedIn=true;
             res.redirect("/profile");
         }
         else if(response.data="notAuth")
@@ -92,6 +103,10 @@ app.post("/login" , async function(req,res)
 
 app.get("/profile" , async function(req,res)
 {
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     try
     {
         var res = await axios.get("http://localhost:4000/profile",
@@ -119,6 +134,10 @@ app.get("/profile" , async function(req,res)
 
 app.get("/delete/:id", async function(req,res)
 {
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     try
     {
         const del = req.params.id;
@@ -149,11 +168,19 @@ app.get("/delete/:id", async function(req,res)
 
 app.get("/edit/:id", function(req,res)
 {
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     res.render("edit");
 })
 
 app.post("/editProfile", async function(req,res)
 { 
+    if(!isLoggedIn)
+    {
+        res.redirect("/");
+    }
     var ename = req.body.name;
     var euname = req.body.Uname;
     var epass = md5(req.body.pwd);
